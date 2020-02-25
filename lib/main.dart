@@ -73,47 +73,44 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Flexible(
-              flex: 11,
-              child: GridView.count(
-                physics: NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 8.0,
-                crossAxisSpacing: 8.0,
-                padding: const EdgeInsets.all(20),
-                childAspectRatio: 3.0 / 4.0,
-                crossAxisCount: 4,
-                children: _values
-                    .asMap()
-                    .map((index, num) {
-                      return MapEntry(index, _card(_cardKeys[index], num));
-                    })
-                    .values
-                    .toList(),
-              ),
+            Expanded(
+              flex: 8,
+              child: _game(4),
+//              GridView.count(
+//                physics: NeverScrollableScrollPhysics(),
+//                mainAxisSpacing: 8.0,
+//                crossAxisSpacing: 8.0,
+//                padding: const EdgeInsets.all(20),
+//                childAspectRatio: 3.0 / 4.0,
+//                crossAxisCount: 4,
+//                children: _values
+//                    .asMap()
+//                    .map((index, num) {
+//                      return MapEntry(index, _card(_cardKeys[index], num));
+//                    })
+//                    .values
+//                    .toList(),
             ),
-            Flexible(
-              flex: 1,
-              child: ValueListenableBuilder<String>(
-                  valueListenable: _mesg,
-                  builder: (context, mesg, _) {
-                    return mesg.isEmpty
-                        ? Container()
-                        : Flexible(
-                            flex: 1,
-                            child: Center(
-                              child: Text(
-                                mesg,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
+            ValueListenableBuilder<String>(
+                valueListenable: _mesg,
+                builder: (context, mesg, _) {
+                  return mesg.isEmpty
+                      ? Container()
+                      : Flexible(
+                          flex: 1,
+                          child: Center(
+                            child: Text(
+                              mesg,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
                               ),
                             ),
-                          );
-                  }),
-            ),
+                          ),
+                        );
+                }),
             Flexible(
               flex: 1,
               child: RaisedButton(
@@ -137,12 +134,45 @@ class _MyHomePageState extends State<MyHomePage> {
       totalFlippedCards -= 2;
     }
     _flippedCards.clear();
-    if (totalFlippedCards == 16) {
+    if (totalFlippedCards == _values.length) {
       _mesg.value = "GG fag you won now get a life";
     }
   }
 
+  Widget _game(int columns) {
+    List<Widget> rows = new List<Widget>();
+    for (int i = 0; i < _values.length / columns; i++) {
+      List<Widget> elements = List<Widget>();
+      for (int j = 0; j < columns; j++) {
+        int index = i * columns + j;
+        elements.add(Flexible(
+            flex: 1,
+            child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: _card(_cardKeys[index], _values[index]))));
+      }
+
+      rows.add(Flexible(
+        flex: 1,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: elements,
+        ),
+      ));
+    }
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: rows,
+    );
+  }
+
   _resetEverything() {
+    _mesg.value = "";
+    totalFlippedCards = 0;
+
     _cardKeys.forEach((el) {
       if (!el.currentState.isFront) {
         el.currentState.toggleCard();
