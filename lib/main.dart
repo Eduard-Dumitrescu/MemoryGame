@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:math';
 
+import 'package:clay_containers/clay_containers.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -34,6 +35,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final ValueNotifier<String> _mesg = ValueNotifier<String>("");
+  final Color mainColor = Color(0xff0c2b69);
 
   int totalFlippedCards = 0;
   HashMap<GlobalKey<FlipCardState>, int> _flippedCards =
@@ -68,7 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        color: Colors.blueAccent,
+        color: mainColor,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -99,27 +101,32 @@ class _MyHomePageState extends State<MyHomePage> {
                       : Flexible(
                           flex: 1,
                           child: Center(
-                            child: Text(
+                            child: ClayText(
                               mesg,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
+                              parentColor: mainColor,
+                              color: Colors.white,
+                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
                         );
                 }),
             Flexible(
               flex: 1,
-              child: RaisedButton(
-                onPressed: () async {
-                  setState(() {
-                    _resetEverything();
-                  });
-                },
-                child: Text("Restart this shit"),
+              child: ClayContainer(
+                color: mainColor,
+                child: RaisedButton(
+                  color: mainColor,
+                  onPressed: () async {
+                    setState(() {
+                      _resetEverything();
+                    });
+                  },
+                  child: ClayText(
+                    "Restart this shit",
+                    parentColor: mainColor,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ),
           ],
@@ -148,7 +155,7 @@ class _MyHomePageState extends State<MyHomePage> {
         elements.add(Flexible(
             flex: 1,
             child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(16.0),
                 child: _card(_cardKeys[index], _values[index]))));
       }
 
@@ -203,16 +210,27 @@ class _MyHomePageState extends State<MyHomePage> {
                   const Duration(milliseconds: 500), () async => _maybeReset());
           }
         },
-        child: Container(
-          color: Colors.red,
-          alignment: Alignment.center,
-          child: Text('Fuck you'),
+        child: ClayContainer(
+          color: mainColor,
+          child: Center(
+            child: Center(
+              child: ClayText(
+                "Touch me",
+                emboss: true,
+                parentColor: mainColor,
+                color: Colors.white,
+              ),
+            ),
+          ),
         ),
       ),
-      back: Container(
-        color: Colors.yellowAccent,
-        alignment: Alignment.center,
-        child: SvgPicture.asset(_icons[num]),
+      back: ClayContainer(
+        color: mainColor,
+        child: Container(
+          color: mainColor,
+          alignment: Alignment.center,
+          child: SvgPicture.asset(_icons[num]),
+        ),
       ),
     );
   }
