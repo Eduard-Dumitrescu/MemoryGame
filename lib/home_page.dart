@@ -3,10 +3,19 @@ import 'dart:math';
 
 import 'package:clay_containers/clay_containers.dart';
 import 'package:flip_card/flip_card.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_device_type/flutter_device_type.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:memory_game/icon_assets.dart';
+
+enum PlayerMode {
+  SinglePlayer,
+  TwoPlayers,
+  FourPlayers,
+}
 
 class MyHomePage extends StatefulWidget {
   final String title;
@@ -18,6 +27,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  PlayerMode _playerMode = PlayerMode.SinglePlayer;
+
   @override
   Widget build(BuildContext context) {
     final double width = MediaQuery.of(context).size.width;
@@ -26,12 +37,136 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(
+                Icons.filter_1,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                setState(() {
+                  _playerMode = PlayerMode.SinglePlayer;
+                  SystemChrome.setPreferredOrientations([
+                    DeviceOrientation.landscapeRight,
+                    DeviceOrientation.landscapeLeft,
+                    DeviceOrientation.portraitUp,
+                    DeviceOrientation.portraitDown,
+                  ]);
+                });
+              },
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.filter_2,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                setState(() {
+                  _playerMode = PlayerMode.TwoPlayers;
+                  SystemChrome.setPreferredOrientations([
+                    DeviceOrientation.landscapeRight,
+                    DeviceOrientation.landscapeLeft,
+                    DeviceOrientation.portraitUp,
+                    DeviceOrientation.portraitDown,
+                  ]);
+                });
+              },
+            ),
+            Device.get().isTablet &&
+                    MediaQuery.of(context).orientation == Orientation.landscape
+                ? IconButton(
+                    icon: Icon(
+                      Icons.filter_4,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _playerMode = PlayerMode.FourPlayers;
+                        SystemChrome.setPreferredOrientations([
+                          DeviceOrientation.landscapeRight,
+                          DeviceOrientation.landscapeLeft,
+                        ]);
+                      });
+                    },
+                  )
+                : Container(),
+          ],
         ),
         body: Container(
           width: width,
           height: height,
-          child: GameScreen(width, height, Color(0xff0c2b69)),
+          child: _mainPage(),
         ));
+  }
+
+  Widget _mainPage() {
+    final Orientation orientation = MediaQuery.of(context).orientation;
+
+    switch (_playerMode) {
+      case PlayerMode.SinglePlayer:
+        return GameScreen(0, 0, Color(0xff0c2b69));
+      case PlayerMode.TwoPlayers:
+        return orientation == Orientation.portrait
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Expanded(
+                      flex: 1,
+                      child: Transform.rotate(
+                          angle: pi,
+                          child: GameScreen(0, 0, Color(0xff0c2b69)))),
+                  Expanded(flex: 1, child: GameScreen(0, 0, Color(0xff0c2b69))),
+                ],
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Expanded(flex: 1, child: GameScreen(0, 0, Color(0xff0c2b69))),
+                  Expanded(
+                      flex: 1,
+                      child: GameScreen(0, 0, Colors.deepPurpleAccent)),
+                ],
+              );
+      case PlayerMode.FourPlayers:
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Expanded(
+              flex: 1,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Expanded(
+                      flex: 1,
+                      child: Transform.rotate(
+                          angle: pi,
+                          child: GameScreen(0, 0, Color(0xff0c2b69)))),
+                  Expanded(
+                      flex: 1,
+                      child: Transform.rotate(
+                          angle: pi,
+                          child: GameScreen(0, 0, Colors.deepPurpleAccent))),
+                ],
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Expanded(flex: 1, child: GameScreen(0, 0, Colors.pink)),
+                  Expanded(flex: 1, child: GameScreen(0, 0, Colors.green)),
+                ],
+              ),
+            ),
+          ],
+        );
+    }
   }
 }
 
@@ -77,8 +212,8 @@ class _GameScreenState extends State<GameScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: widget.width,
-      height: widget.height,
+//      width: widget.width,
+//      height: widget.height,
       color: widget.mainColor,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
